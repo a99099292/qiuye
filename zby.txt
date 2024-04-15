@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>KStore-直链文件存储-免费直链空间并支持WEBDAV</title>
+		<meta name="description" content="免费直链存储空间，提供REST API，支持WEBDAV" />
+		<meta name="keywords" content="kstore免费直链;Kstore免费直链;KStore免费直链;免费直链存储;免费直链空间;支持REST API;免费WEBDAV" />
+		<link rel="stylesheet" href="https://www.layuicdn.com/layui-v2.5.7/css/layui.css?t=1515376178738">
+		<style>
+			/*强制select向下弹出，避免弹出层对于select显示不完整*/
+			
+			.layui-form-selectup dl {
+				top: 42px;
+				bottom: unset;
+			}
+		</style>
+	</head>
+
+	<body>
+		<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+			<legend>KStore-可直链下载的存储空间(提供REST API)</legend>
+		</fieldset>
+		<div style="padding: 20px; background-color: #F2F2F2;">
+			<div class="layui-row layui-col-space15">
+				<div class="layui-col-md12">
+					<div class="layui-card">
+						<div class="layui-card-header">
+							KStore 简介
+						</div>
+						<div class="layui-card-body">
+							KStore是一个网络文件管理系统，提供基本的文件上传、下载、管理等功能。本文档主要提供KStore API，API设计以实际用途可操作性为准，并尽量遵守RESTful规范。
+							<br> KStore主要针对私有写、公有读的应用场景，并且提供文件下载直链，例如可以应用于图床、备份、cdn、文件共享等应用场景。通过选择本系统提供的多个国家节点（例如美国洛杉矶、俄罗斯、新加坡等），你可以获得极大的上传、下载速度（原则上下载、上传速度可以达到400Mbps），并且支持迅雷等多线程下载工具。
+							<br> 本系统文件采用多备份机制，原则上稳定性、安全性有保障。且对于小于50M的文件，会直接缓存到节点服务器。为保证服务的可用性，每位用户对个人操作速率做限制，API调用6000次/小时，文件上传100次/小时，文件下载100000次/小时（几乎等于无次数限制）。
+							<br> 本API可非常迅速集成到其他系统中，亦可通过本API开发网络文件管理软件，后续会建立Git仓库用以共享相关系统。
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-row layui-col-space15">
+				<div class="layui-col-md12">
+					<div class="layui-card">
+						<div class="layui-card-header">
+							如何使用
+						</div>
+						<div class="layui-card-body">
+							本系统免费使用，并提供相关API(所有KStore提供的文件操作API)，方便开发者定制。 <br> 每位用户数据相互隔离，为确保资源可用性，上传API操作限制每小时100次，但下载次数无限制，且支持断点续传、迅雷等多线程下载工具。注意上传文件大小需要小于1.0GB，上传大文件有失败的几率。 <br> 本系统提供网站集成的WEB操作界面（在本站右上角点击KStore即可进入），WEB页面将开源于GitHub，届时希望更多开发者通过API开发、共享实际应用。 <br> 为提升整体存储空间质量，避免恶意使用，同时为确保服务质量，对于普通用户每用户默认提供2GB存储空间，用户可通过推广新用户等方式扩展存储空间，推荐每位用户扩展200MB，如有更大需求请联系邮箱。
+							<br> 演示账户（仅用于演示，个人使用请开通个人账户）：
+							<a href="http://kstore.space/demo.html">http://kstore.space/demo.html</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-row layui-col-space15">
+				<div class="layui-col-md12">
+					<div class="layui-card">
+						<div class="layui-card-header">
+							功能列表
+						</div>
+						<div class="layui-card-body">
+							1.基本功能：基本上传/下载功能，文件重命名、删除，默认所有文件提供直链下载；<br> 2.上传/下载节点配置，默认自动根据运营商选择最优线路，可手动指定（可跑满200M宽带）；
+
+							<br> 3.文件/文件夹压缩下载：提供压缩功能（加密压缩），方便打包下载；
+
+							<br> 4.文件分享功能：可分享文件/文件夹，并可以允许游客上传，可用于收文件、收作业等。
+
+							<br> 5.文件直链开关：用户可无限开启/关闭文件直链，开启文件直链的文件下载链接永不失效（非直链文件下载链接会失效）。
+
+							<br> 注：为保证分享内容的健康性，对于分享、开启直链的文件，会进行内容抽查。
+
+							<br> KStore WEB集成管理页面：
+							<a href="https://my.ksust.com/kstore.htm">https://my.ksust.com/kstore.htm</a><br> KStore体验账户（仅用于体验）：
+
+							<a href="https://kstore.space/demo.html">https://kstore.space/demo.html</a><br> KStore API 文档地址:
+							<a href="https://www.kancloud.cn/ksust/kstore/1557716">https://www.kancloud.cn/ksust/kstore/1557716</a><br> 注：目前线路优化数据不足，如果您使用默认节点下载比较慢，可以尝试切换节点，并反馈测试结果，以进一步优化线路。此外，该系统目前主要关注高持续IO流（下载速度持续较快），在非缓存场景下，建立连接到数据传输相对较慢。
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-row layui-col-space15">
+				<div class="layui-col-md12">
+					<div class="layui-card">
+						<div class="layui-card-header" id="title">
+						</div>
+						<div class="layui-card-body">
+							<span id="content"></span>
+							<br>
+							<span id="share-abtract"></span>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div class="layui-row layui-col-space15">
+				<div class="layui-col-md12">
+					<div class="layui-card">
+						<div class="layui-card-header">文件列表(<span id="path">.</span>)
+						</div>
+						<div class="layui-card-body">
+							<a class="layui-btn layui-btn-normal" style="margin: auto;margin-top: 10px;" href="javascript:configKstore()"><i class="layui-icon">&#xe614;</i> 节点配置</a>
+							<a class="layui-btn layui-btn-normal" style="margin: auto;margin-top: 10px;" href="javascript:refreshFile()"><i class="layui-icon">&#xe9aa;</i> 刷新</a>
+							<form class="layui-form" action="">
+								<div class="layui-form-item">
+									<div class="layui-form-item" pane="">
+										<table class="layui-hide" id="list"></table>
+									</div>
+
+								</div>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="layui-row layui-col-space15" style="display: none;" id="upload-section">
+				<div class="layui-col-md12">
+					<div class="layui-card">
+						<div class="layui-card-header">文件上传</div>
+						<div class="layui-card-body" style="text-align: center;">
+							<div class="layui-upload-drag" id="upload">
+								<i class="layui-icon"></i>
+								<p>点击上传，或将文件拖拽到此处</p>
+								<div class="layui-hide" id="uploadDemoView">
+									<hr>
+									<img src="" alt="上传成功后渲染" style="max-width: 196px">
+								</div>
+							</div>
+							<div class="layui-progress" lay-filter="progress" lay-showPercent="true" style="margin-top: 6px">
+								<div class="layui-progress-bar" lay-percent="0%"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="layui-row layui-col-space15">
+				<div class="layui-col-md12">
+					<div class="layui-card">
+						<div class="layui-card-header">说明</div>
+						<div class="layui-card-body">
+							本页面为KStore文件静态页面，经KStore API调用渲染。如果默认节点下载/上传速度较慢，您可点击“节点配置”配置适合的节点。
+							<br> 页面仍完善中...
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-row layui-col-space15" id="kstore-config">
+
+				<div class="layui-col-md12" id="config" style="display: none;">
+					<div class="layui-card">
+						<div class="layui-card-header">节点配置</div>
+						<div class="layui-card-body">
+							<form class="layui-form layui-form-pane" action="">
+								<div class="layui-card-header">上传节点(<span id="upload-node-now">默认(上次选择)</span>)</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">上传节点</label>
+									<div class="layui-input-block">
+										<select name="interest" lay-filter="upload-node" id="upload-node">
+											<option value="https://upload.kstore.space/upload" selected="">默认</option>
+
+										</select>
+									</div>
+								</div>
+								<div class="layui-card-header">下载节点(<span id="download-node-now">默认(上次选择)</span>)</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">高速节点</label>
+									<div class="layui-input-block">
+										<select name="download" lay-filter="download-node" id="download-node">
+											<option value="https://download.kstore.space/download" selected="">默认(高速)</option>
+										</select>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<br> 直链文件存储©
+			<a href="http://beian.miit.gov.cn/" target="_blank">蜀ICP备16004556号-3</a>
+		</div>
+		<!--使用all，不用单独引入模块-->
+		<script src="https://www.layuicdn.com/layui-v2.5.7/layui.all.js?t=1515376178738"></script>
+		<script src="https://cdn.bootcss.com/blueimp-md5/1.1.0/js/md5.js"></script>
+		<script>
+			function guid() {
+				function S4() {
+					return(((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+				}
+
+				return(S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+			}
+
+			if(localStorage.getItem('kstore-uuid') == null) {
+				localStorage.setItem('kstore-uuid', guid());
+			}
+			var uuid = localStorage.getItem('kstore-uuid');
+			var uuidMd5 = md5(uuid);
+			var uuidDoubleMd5 = md5(uuidMd5);
+		</script>
+		<script>
+			function getQueryVariable(variable) {
+				var query = window.location.search.substring(1);
+				var vars = query.split("&");
+				for(var i = 0; i < vars.length; i++) {
+					var pair = vars[i].split("=");
+					if(pair[0] == variable) {
+						return pair[1];
+					}
+				}
+				return(false);
+			}
+
+			var layer = layui.layer,
+				upload = layui.upload,
+				element = layui.element,
+				table = layui.table,
+				form = layui.form,
+				$ = layui.jquery; //引入内置Jjq
+			var waitIndex = 0;
+			/**目录：针对于ksf**/
+			var currentFile = [];
+			var currentFileList = [];
+			var currentFileId = 0;
+			var uuid = 's4872s9df9f350';
+			//生成规则，uuid=s+rootId+s+str
+			var rootId = 4872;
+			//**目录记录结束**//
+			var token = "share";
+			$('#access_token').html(token);
+			var currentDownloadNode = localStorage.getItem("currentDownloadNode") == null ?
+				'https://download.kstore.space/download' : localStorage.getItem("currentDownloadNode");
+			var currentUploadNode = localStorage.getItem("currentUploadNode") == null ?
+				'https://upload.kstore.space/upload' : localStorage.getItem("currentUploadNode");
+			var uploadListIns = upload.render({
+				elem: '#upload',
+				url: currentUploadNode,
+				accept: 'file',
+				auto: true,
+				before: function(obj) {
+					waitIndex = layer.load();
+					element.progress('progress', '0%');
+				},
+				done: function(res, index, upload) {
+					layer.close(waitIndex);
+					if(res['status'] == 200) {
+						layer.msg('文件上传成功');
+						directory(currentFileId)
+					} else {
+						layer.msg('文件上传失败，原因：' + res['msg']);
+					}
+
+				},
+				error: function(index, upload) {
+					layer.close(waitIndex);
+					layer.msg('文件上传失败，异常原因');
+					console.log(index);
+					console.log(upload);
+				},
+				progress: function(n, elem) {
+					element.progress('progress', n + '%');
+				}
+			});
+
+			/****功能函数****/
+			function setFileList(currentFileList = []) {
+				for(let i = 0; i < currentFileList.length; i++) {
+					let createTime = new Date(currentFileList[i]['createTime']);
+					currentFileList[i]['createTime'] = createTime.toLocaleDateString().replace(/\//g, "-") +
+						" " + createTime.toTimeString().substr(0, 8);
+					currentFileList[i]['type'] = currentFileList[i]['type'] == 'folder' ? '目录' :
+						(currentFileList[i]['type'] == 'file' ? '文件' : currentFileList[i]['type']);
+					currentFileList[i]['size'] = beautifyFileSize(currentFileList[i]['size']);
+					currentFileList[i]['downloadUrl'] = currentDownloadNode + '/' + currentFileList[i]['userId'] + '/' + currentFileList[i]['path'] +
+						(currentFileList[i]['password'] == null ? '' : '?password=' + currentFileList[i]['password']);
+					currentFileList[i]['nameDisplay'] = currentFileList[i]['type'] == '文件' ?
+						'<a style="margin: auto;" href="' + currentFileList[i]['downloadUrl'] + '" target="_blank">' + currentFileList[i]['name'] + '</a>' :
+						'<a style="margin: auto; " href="javascript:directory(' + currentFileList[i]['id'] +
+						',\'' + currentFileList[i]['name'] + '\')">' + currentFileList[i]['name'] + '</a>';
+				}
+				table.render({
+					elem: '#list',
+					cellMinWidth: 80, //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+					cols: [
+						[{
+							field: 'nameDisplay',
+							minWidth: 200,
+							title: '名称(可点击)',
+							sort: true
+						}, {
+							field: 'type',
+							width: 80,
+							title: '类型',
+							sort: true
+						}, {
+							field: 'size',
+							width: 120,
+							title: '大小',
+							sort: true
+
+						}, {
+							field: 'downloadCount',
+							width: 100,
+							title: '下载次数',
+							sort: true
+						}, {
+							field: 'createTime',
+							width: 180,
+							title: '上传时间',
+							sort: true
+						}]
+					],
+					limit: 30,
+					page: true,
+					data: currentFileList
+				});
+			}
+
+			/**
+			 * 美化显示文件大小，传入byte
+			 * @param {Object} size
+			 */
+			function beautifyFileSize(size) {
+				if(isNaN(size)) {
+					return size;
+				}
+				size /= 1024;
+				let res = (size).toFixed(2) + 'KB';
+				if(size / 1024 > 1) {
+					size /= 1024;
+					res = (size).toFixed(2) + 'MB';
+				}
+				if(size / 1024 > 1) {
+					size /= 1024;
+					res = (size).toFixed(2) + 'GB';
+				}
+				return res;
+			}
+
+			function refreshFile() {
+				directory(currentFileId);
+			}
+
+			function configKstore() {
+				layer.open({
+					type: 1,
+					'title': '节点配置',
+					content: $('#config'),
+					success: function(layero, index) {
+						$('#config').css('display', 'block');
+					},
+					cancel: function(index, layero) {
+						$('#config').css('display', 'none');
+					}
+				});
+			}
+
+			function handleShareInfo(shareInfo) {
+				let abstract = '共享摘要：';
+				if(shareInfo['status'] == 0) {
+					layer.msg('该分享已经关闭');
+					abstract += '共享关闭；';
+				} else {
+					abstract += '共享开启；';
+				}
+				//upload
+				if(shareInfo['upload'] == 1) {
+					$('#upload-section').css('display', 'block');
+					abstract += '允许上传；';
+				} else {
+					abstract += '不允许上传；';
+				}
+				if(shareInfo['view'] == 0) {
+					abstract += '允许列出并下载所有文件；';
+				} else if(shareInfo['view'] == 1) {
+					abstract += '允许列出所有文件但只能下载自己上传的文件；';
+				} else if(shareInfo['view'] == 2) {
+					abstract += '仅允许列出并下载自己的文件；';
+				}
+				$('#share-abtract').html(abstract);
+				$('#title').html(shareInfo['title']);
+				$('#content').html(shareInfo['content']);
+
+			}
+
+			function directory(id = 0, name = '.') {
+				waitIndex = layer.load();
+				let url = 'https://api.kstore.space/api/v1/share/file/list/' + id + '?uuid=' + uuid + '&password=' + uuidDoubleMd5 + '&time=' + new Date().getTime();
+				$.get(url, function(data) {
+					if(data['data'] == null) {
+						layer.msg(data['msg']);
+						return;
+					}
+					handleShareInfo(data['data']['shareInfo']);
+					if(data['data']['shareInfo']['status'] == 0) {
+						return;
+					}
+					if(data['data']['type'] == 'file') {
+						//单个文件分享
+						let oneFile = data['data'];
+						data['data']['list'] = [{
+							'id': oneFile['id'],
+							'userId': oneFile['userId'],
+							'password': oneFile['password'],
+							'name': oneFile['name'],
+							'size': oneFile['size'],
+							'type': oneFile['type'],
+							'path': oneFile['path'],
+							'downloadCount': oneFile['downloadCount'],
+							'createTime': oneFile['createTime']
+						}];
+					}
+					currentFile = data['data'];
+					currentFileId = currentFile['id'];
+					uploadListIns.reload({
+						url: currentUploadNode + '/share/' + currentFileId + '?passwordVerify=' + uuidMd5
+					});
+
+					$('#path').html('/' + currentFile['path']);
+					currentFileList = currentFile['list'];
+					currentFileList.sort(function(a, b) {
+						return b.name.charCodeAt(0) - a.name.charCodeAt(0);
+					});
+					currentFileList.sort(function(a, b) {
+						if(a.type == '目录') {
+							return -1;
+						}
+						return 1;
+					});
+					if(currentFile['id'] != rootId) {
+						let rootFile = {
+							'id': rootId,
+							name: '.',
+							'size': 0,
+							'type': '根目录',
+							'createTime': new Date().getTime()
+						};
+						let lastFile = {
+							'id': currentFile['parentId'],
+							name: '..',
+							'size': 0,
+							'type': '上一级',
+							'createTime': new Date().getTime()
+						};
+						currentFileList = [rootFile, lastFile].concat(currentFileList);
+					}
+
+					setFileList(currentFileList);
+					layer.close(waitIndex);
+				});
+			}
+
+			function updateNode() {
+				waitIndex = layer.load();
+				$.get('https://api.kstore.space/api/v1/util/node/list' + '?access_token=' + token, {},
+					function(data) {
+						let nodeList = data['data'];
+						$("#upload-node").empty();
+						$("#download-node").empty();
+						$("#download-node2").empty();
+						for(let i = 0; i < nodeList.length; i++) {
+							if(nodeList[i]['type'] == 'upload') {
+								$("#upload-node").append('<option value="' + nodeList[i]['url'] + '">' + nodeList[i]['description'] + '<option>');
+							} else if(nodeList[i]['type'] == 'download') {
+								$("#download-node").append('<option value="' + nodeList[i]['url'] + '">' + nodeList[i]['description'] + '<option>');
+							}
+						}
+						form.render();
+						layer.close(waitIndex);
+					});
+			}
+
+			/****事件监听****/
+			form.on('select(upload-node)', function(data) {
+				uploadListIns.reload({
+					url: $('#upload-node').val() + '/share/' + currentFileId + '?passwordVerify=' + uuidMd5
+				});
+				layer.msg('change upload node->' + $("#upload-node option:selected").text());
+				$('#upload-node-now').html($("#upload-node option:selected").text());
+				currentUploadNode = $('#upload-node').val();
+				localStorage.setItem("currentUploadNode", currentUploadNode);
+
+			});
+			form.on('select(download-node)', function(data) {
+				layer.msg('change download node->' + $("#download-node option:selected").text());
+				$('#download-node-now').html($("#download-node option:selected").text());
+				currentDownloadNode = $("#download-node").val();
+				localStorage.setItem("currentDownloadNode", currentDownloadNode);
+				setFileList(currentFileList);
+			});
+
+			updateNode();
+			directory(rootId);
+		</script>
+	</body>
+
+</html>
