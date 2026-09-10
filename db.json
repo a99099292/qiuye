@@ -1,5 +1,5 @@
 {
-  "spider": "http://09999999.xyz/0723.jar",
+  "spider": "https://q.99099292.xyz/https://raw.githubusercontent.com/a99099292/qiuye/main/0723.jar",
   "wallpaper": "https://random-api.czl.net/pic/all",
   "sites": [
     {
@@ -673,7 +673,7 @@
     {
       "name": "live",
       "type": 0,
-      "url": "http://09999999.xyz/zby.txt",
+      "url": "https://q.99099292.xyz/https://raw.githubusercontent.com/a99099292/qiuye/main/zby.txt",
       "playerType": 1,
       "ua": "okhttp/3.15",
       "epg": "http://epg.qiuye.us.kg/index.php?ch={name}&date={date}",
